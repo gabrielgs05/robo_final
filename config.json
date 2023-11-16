@@ -1,35 +1,36 @@
 {
   "Piece": "SuaPeca",
   "DelaySecondsConsultaMovimento": 15,
-  "DelaySecondsToSendSerial": 2,
+  "DelaySecondsToSendSerial": 5,
   "DelaySecondsEnviaStatus": 10,
   "AtivarLoopConsultaMovimento": true,
   "AtivarLoopEnviaStatus": true,
   "serialPortName": "COM3",
   "serialPortNameInverted": "COM2",
   "URLconsultaMovimentoBase": "http://localhost:3000/posts",  
-  "URLremoveEventoBase": "http://localhost:8080/maquina-velha/moves/remove/",
+  "URLremoveEventoBase": "http://localhost:3000/posts",
 
-  "DropPiece": null, //"comando para soltar a pe�a"
-  "InitialPosition": "G0 X-86.80 Y40.60 F10000", //"G0 Z150 X-86.80 Y40.60 F10000"
-  "FinalPosition": "G0 X-86.80 Y40.60 F10000", //"G0 Z150 X-86.80 Y40.60 F10000"
-  "ValorT0": null, //"comando para porta serial"
-  "ValorT1": null, //"comando para porta serial"
-  "ValorT2": null, //"comando para porta serial"
-  "ValorT3": null, //"comando para porta serial"
-  "ValorT4": "G1 X-38.90 Y-67.60 F2000", //"comando para porta serial"
-  "ValorT5": null, //"comando para porta serial"
-  "ValorT6": null, //"comando para porta serial"
-  "ValorT7": null, //"comando para porta serial"
-  "ValorT8": null, //"comando para porta serial"
-  "ValorP0": "G0 X-80.80 Y-45.40 F10000", //"comando para porta serial"
-  "ValorP1": null, //"comando para porta serial"
-  "ValorP2": null, //"comando para porta serial"
-  "ValorP3": null, //"comando para porta serial"
-  "ValorP4": null, //"comando para porta serial"
-  "ValorS0": "W0", //"comando validar status"
-  "DescePeca": "G0 Z100 F3000", //"comando para descer ate a pe�a"
-  "SobePeca": "G1 Z150 F1500", //"comando para subir a pe�a"
-  "DescePecaTabuleiro": "G1 Z100 F1500", //"comando para descer a pe�a no tabuleiro"
-  "SobeSemPecaTabuleiro": "G0 Z150 F3000" //"comando para subir sem a pe�a do tabuleiro"
+  "DropPiece": null, 
+  "InitialPosition": "G0 X-86.80 Y40.60 F10000", 
+  "FinalPosition": "G0 X-86.80 Y40.60 F10000", 
+  "ValorT0": null, 
+  "ValorT1": null, 
+  "ValorT2": null, 
+  "ValorT3": null, 
+  "ValorT4": "G1 X-38.90 Y-67.60 F2000", 
+  "ValorT5": null, 
+  "ValorT6": null, 
+  "ValorT7": null, 
+  "ValorT8": null, 
+  "ValorP0": "G0 X-80.80 Y-45.40 F10000", 
+  "ValorP1": null, 
+  "ValorP2": null, 
+  "ValorP3": null, 
+  "ValorP4": null, 
+  "StatusRobo": "W0", 
+  "RetornoStatusRobo": "W0",
+  "DescePeca": "G0 Z100 F3000", 
+  "SobePeca": "G1 Z150 F1500", 
+  "DescePecaTabuleiro": "G1 Z100 F1500", 
+  "SobeSemPecaTabuleiro": "G0 Z150 F3000" 
 }
