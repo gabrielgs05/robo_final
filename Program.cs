@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.IO.Ports;
 using System.Net.Http;
@@ -9,11 +9,11 @@ using System.Collections.Generic;
 
 class Program {
     static async Task Main(string[] args) {
-        Configuracao configuracao = CarregarConfiguracoes(@"D:\ihmRobo\robo_final\robo_final\config.json");
+        Configuracao configuracao = CarregarConfiguracoes(@"C:\Users\gabriel.sousa_siteme\Desktop\robo_final\config.json");
 
         async Task EsperarAteLiberado(SerialPort port, string liberado, TimeSpan delay) {
             while (true) {
-                port.WriteLine(configuracao.ValorS0);
+                port.WriteLine(configuracao.StatusRobo);
                 Console.WriteLine("Enviando comando para verificar status...");
                 if (port.ReadLine().Contains(liberado)) { 
                     Console.WriteLine("Liberado!");
@@ -74,13 +74,15 @@ class Program {
             string comandoDaAPI = await LerComandoDaAPI(urlConsultaMovimento);
 
             if (comandoDaAPI != null) {
-                var resultadoConsultaMovimento = JsonConvert.DeserializeObject<RespostaConsultaMovimento>(comandoDaAPI);
+                var listaResultado = JsonConvert.DeserializeObject<List<RespostaConsultaMovimento>>(comandoDaAPI);
+                //var resultadoConsultaMovimento = JsonConvert.DeserializeObject<RespostaConsultaMovimento>(comandoDaAPI);
+                foreach (var resultadoConsultaMovimento in listaResultado) {
                 string player = resultadoConsultaMovimento.player;
                 string pieceToSend = resultadoConsultaMovimento.piece;
                 string idToSend = resultadoConsultaMovimento.id;
                 string positionToSend = resultadoConsultaMovimento.position;
                 string inverted = resultadoConsultaMovimento.inverted;
-                string liberado = "porta liberada";
+                string liberado = configuracao.RetornoStatusRobo;
                 string initialPosition = "InitialPosition";
                 string descePeca = "DescePeca";
                 string sobePeca = "SobePeca";
@@ -112,6 +114,7 @@ class Program {
                     }
                 }
             }
+            }
 
             await Task.Delay(TimeSpan.FromSeconds(configuracao.DelaySecondsConsultaMovimento));
         }
@@ -133,7 +136,7 @@ class Program {
     }
 
     static void DeletarDadosNaAPI(string idToSend, string removeEventoBase) {
-        string api = $"{removeEventoBase}{idToSend}";
+        string api = $"{removeEventoBase}/{idToSend}";
 
         using (HttpClient httpClient = new HttpClient()) {
             var response = httpClient.DeleteAsync(api).Result;
@@ -190,7 +193,8 @@ class Configuracao {
     public string? ValorP2 { get; set; }
     public string? ValorP3 { get; set; }
     public string? ValorP4 { get; set; }
-    public string? ValorS0 { get; set; }
+    public string? StatusRobo { get; set; }
+    public string? RetornoStatusRobo { get; set; }
     public string? DescePeca { get; set; }
     public string? SobePeca { get; set; }
     public string? DescePecaTabuleiro { get; set; }
