@@ -1,11 +1,10 @@
 {
   "posts":
-    {
+  [{
       "player": "1",
       "position": "T4",
       "piece": "P0",
       "inverted": false,
       "id": "123"
-    }
-  
+    }]
 }
