@@ -39,7 +39,11 @@ class Program {
         { "P3", configuracao.ValorP3 },
         { "P4", configuracao.ValorP4 },
         { "DropPiece", configuracao.DropPiece },
-        { "InitialPosition", configuracao.InitialPosition },
+        { "PushPiece", configuracao.PushPiece },
+        { "InitialPositionZ", configuracao.InitialPositionZ },
+        { "InitialPositionX", configuracao.InitialPositionX },
+        { "InitialPositionY", configuracao.InitialPositionY },
+        { "AbsolutePosition", configuracao.AbsolutePosition },
         { "FinalPosition", configuracao.FinalPosition },
         { "DescePeca", configuracao.DescePeca },
         { "SobePeca", configuracao.SobePeca },
@@ -62,7 +66,11 @@ class Program {
         { "P3", configuracao.ValorP3 },
         { "P4", configuracao.ValorP4 },
         { "DropPiece", configuracao.DropPiece },
-        { "InitialPosition", configuracao.InitialPosition },
+        { "PushPiece", configuracao.PushPiece },
+        { "InitialPositionZ", configuracao.InitialPositionZ },
+        { "InitialPositionX", configuracao.InitialPositionX },
+        { "InitialPositionY", configuracao.InitialPositionY },
+        { "AbsolutePosition", configuracao.AbsolutePosition },
         { "FinalPosition", configuracao.FinalPosition },
         { "DescePeca", configuracao.DescePeca },
         { "SobePeca", configuracao.SobePeca },
@@ -83,24 +91,28 @@ class Program {
                 string positionToSend = resultadoConsultaMovimento.position;
                 string inverted = resultadoConsultaMovimento.inverted;
                 string liberado = configuracao.RetornoStatusRobo;
-                string initialPosition = "InitialPosition";
+                string initialPositionZ = "InitialPositionZ";
+                string initialPositionX = "InitialPositionX";
+                string initialPositionY = "InitialPositionY";
+                string AbsolutePosition = "AbsolutePosition";
                 string descePeca = "DescePeca";
                 string sobePeca = "SobePeca";
                 string descePecaTabuleiro = "DescePecaTabuleiro";
                 string dropPiece = "DropPiece";
+                string pushPiece = "PushPiece";
                 string sobeSemPecaTabuleiro = "SobeSemPecaTabuleiro";
                 string finalPosition = "FinalPosition";
 
                 if (!string.IsNullOrEmpty(pieceToSend) && !string.IsNullOrEmpty(positionToSend)) {
                     using (SerialPort serialPort = new SerialPort(inverted == "true" ? configuracao.serialPortNameInverted : configuracao.serialPortName)) {
-                        serialPort.BaudRate = 9600;
+                        serialPort.BaudRate = 250000;
                         serialPort.Encoding = Encoding.UTF8;
                         serialPort.NewLine = "\n";
                         serialPort.Open();
 
                         //string[] positions = inverted == "true" ? positionInvertedMapping.Keys.ToArray() : positionMapping.Keys.ToArray();
 
-                        foreach (string command in new string[] { initialPosition, pieceToSend, descePeca, sobePeca, positionToSend, descePecaTabuleiro, dropPiece, sobeSemPecaTabuleiro, finalPosition }) {
+                        foreach (string command in new string[] { initialPositionZ, initialPositionX, initialPositionY, AbsolutePosition, finalPosition, pieceToSend, descePeca, pushPiece, sobePeca, positionToSend, descePecaTabuleiro, dropPiece, sobeSemPecaTabuleiro, finalPosition }) {
                             string selectedPosition = inverted == "true" ?
                                 (positionInvertedMapping.ContainsKey(command) ? positionInvertedMapping[command] : throw new Exception($"Comando não mapeado: {command}")) :
                                 (positionMapping.ContainsKey(command) ? positionMapping[command] : throw new Exception($"Comando não mapeado: {command}"));
@@ -177,7 +189,11 @@ class Configuracao {
     public string? URLconsultaMovimentoBase { get; set; }
     public string? URLremoveEventoBase { get; set; }
     public string? DropPiece { get; set; }
-    public string? InitialPosition { get; set; }
+    public string? PushPiece { get; set; }
+    public string? InitialPositionZ { get; set; }
+    public string? InitialPositionX { get; set; }
+    public string? InitialPositionY { get; set; }
+    public string? AbsolutePosition { get; set; }
     public string? FinalPosition { get; set; }
     public string? ValorT0 { get; set; }
     public string? ValorT1 { get; set; }
