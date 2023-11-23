@@ -134,12 +134,9 @@ class Program {
                     string comandNewGame = await NewGame(urlNewGame);
 
                     if(comandNewGame != null){
-                        var listNewGame = JsonConvert.DeserializeObject<List<RespostaConsultaMovimento>>(comandNewGame);
-                        string idNewGame = null;
+                        respostaNewGame returnId = JsonConvert.DeserializeObject<respostaNewGame>(comandNewGame);
+                        string? idNewGame = returnId?.id;
                         
-                        foreach (var returnNewGame in listNewGame) {
-                         idNewGame = returnNewGame.id;
-                        }
 
                         foreach (var comando in new[] { initialPositionZ, initialPositionX, initialPositionY, AbsolutePosition }) {
                         string selectedPosition = positionMapping.ContainsKey(comando)
@@ -311,7 +308,9 @@ class RespostaConsultaMovimento {
     public string inverted { get; set; }
     public string id { get; set; }
 }
-
+class respostaNewGame{
+    public string? id { get; set; }
+}
 class Configuracao {
     public string? serialPortName { get; set; }
     public string? serialPortNameInverted { get; set; }
