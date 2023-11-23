@@ -14,9 +14,11 @@ class Program {
         string caminhoConfig = Path.Combine(caminhoPastaExecutavel, "config.json");
         Configuracao configuracao = CarregarConfiguracoes(caminhoConfig);
 
+        bool executarEsperarAteLiberado = true;
+
         async Task EsperarAteLiberado(SerialPort port, string liberado, TimeSpan delay) {
             while (true) {
-                port.WriteLine(configuracao.StatusRobo);
+                port.WriteLine(configuracao.StatusRobot);
                 Console.WriteLine("Enviando comando para verificar status...");
                 if (port.ReadLine().Contains(liberado)) {
                     Console.WriteLine("Liberado!");
@@ -27,20 +29,20 @@ class Program {
         }
 
         Dictionary<string, string> positionMapping = new Dictionary<string, string> {
-        { "T0", configuracao.ValorT0 },
-        { "T1", configuracao.ValorT1 },
-        { "T2", configuracao.ValorT2 },
-        { "T3", configuracao.ValorT3 },
-        { "T4", configuracao.ValorT4 },
-        { "T5", configuracao.ValorT5 },
-        { "T6", configuracao.ValorT6 },
-        { "T7", configuracao.ValorT7 },
-        { "T8", configuracao.ValorT8 },
-        { "P0", configuracao.ValorP0 },
-        { "P1", configuracao.ValorP1 },
-        { "P2", configuracao.ValorP2 },
-        { "P3", configuracao.ValorP3 },
-        { "P4", configuracao.ValorP4 },
+        { "T0", configuracao.ValueT0 },
+        { "T1", configuracao.ValueT1 },
+        { "T2", configuracao.ValueT2 },
+        { "T3", configuracao.ValueT3 },
+        { "T4", configuracao.ValueT4 },
+        { "T5", configuracao.ValueT5 },
+        { "T6", configuracao.ValueT6 },
+        { "T7", configuracao.ValueT7 },
+        { "T8", configuracao.ValueT8 },
+        { "P0", configuracao.ValueP0 },
+        { "P1", configuracao.ValueP1 },
+        { "P2", configuracao.ValueP2 },
+        { "P3", configuracao.ValueP3 },
+        { "P4", configuracao.ValueP4 },
         { "DropPiece", configuracao.DropPiece },
         { "PushPiece", configuracao.PushPiece },
         { "InitialPositionZ", configuracao.InitialPositionZ },
@@ -48,26 +50,26 @@ class Program {
         { "InitialPositionY", configuracao.InitialPositionY },
         { "AbsolutePosition", configuracao.AbsolutePosition },
         { "FinalPosition", configuracao.FinalPosition },
-        { "DescePeca", configuracao.DescePeca },
-        { "SobePeca", configuracao.SobePeca },
-        { "DescePecaTabuleiro", configuracao.DescePecaTabuleiro },
-        { "SobeSemPecaTabuleiro", configuracao.SobeSemPecaTabuleiro },};
+        { "GoDown", configuracao.GoDown },
+        { "UpWithPiece", configuracao.UpWithPiece },
+        { "GoDownWithPiece", configuracao.GoDownWithPiece },
+        { "UpWithoutPiece", configuracao.UpWithoutPiece },};
 
         Dictionary<string, string> positionInvertedMapping = new Dictionary<string, string> {
-        { "T0", configuracao.ValorT8 },
-        { "T1", configuracao.ValorT7 },
-        { "T2", configuracao.ValorT6 },
-        { "T3", configuracao.ValorT5 },
-        { "T4", configuracao.ValorT4 },
-        { "T5", configuracao.ValorT3 },
-        { "T6", configuracao.ValorT2 },
-        { "T7", configuracao.ValorT1 },
-        { "T8", configuracao.ValorT0 },
-        { "P0", configuracao.ValorP0 },
-        { "P1", configuracao.ValorP1 },
-        { "P2", configuracao.ValorP2 },
-        { "P3", configuracao.ValorP3 },
-        { "P4", configuracao.ValorP4 },
+        { "T0", configuracao.ValueT8 },
+        { "T1", configuracao.ValueT7 },
+        { "T2", configuracao.ValueT6 },
+        { "T3", configuracao.ValueT5 },
+        { "T4", configuracao.ValueT4 },
+        { "T5", configuracao.ValueT3 },
+        { "T6", configuracao.ValueT2 },
+        { "T7", configuracao.ValueT1 },
+        { "T8", configuracao.ValueT0 },
+        { "P0", configuracao.ValueP0 },
+        { "P1", configuracao.ValueP1 },
+        { "P2", configuracao.ValueP2 },
+        { "P3", configuracao.ValueP3 },
+        { "P4", configuracao.ValueP4 },
         { "DropPiece", configuracao.DropPiece },
         { "PushPiece", configuracao.PushPiece },
         { "InitialPositionZ", configuracao.InitialPositionZ },
@@ -75,10 +77,10 @@ class Program {
         { "InitialPositionY", configuracao.InitialPositionY },
         { "AbsolutePosition", configuracao.AbsolutePosition },
         { "FinalPosition", configuracao.FinalPosition },
-        { "DescePeca", configuracao.DescePeca },
-        { "SobePeca", configuracao.SobePeca },
-        { "DescePecaTabuleiro", configuracao.DescePecaTabuleiro },
-        { "SobeSemPecaTabuleiro", configuracao.SobeSemPecaTabuleiro },};
+        { "GoDown", configuracao.GoDown },
+        { "UpWithPiece", configuracao.UpWithPiece },
+        { "GoDownWithPiece", configuracao.GoDownWithPiece },
+        { "UpWithoutPiece", configuracao.UpWithoutPiece },};
 
         using (SerialPort serialPort = new SerialPort(configuracao.serialPortName)) {
             serialPort.BaudRate = configuracao.baudRate;
@@ -86,6 +88,7 @@ class Program {
             serialPort.NewLine = "\n";
             serialPort.Open();
 
+            
             using (SerialPort serialPortInverted = new SerialPort(configuracao.serialPortNameInverted)) {
                 serialPortInverted.BaudRate = configuracao.baudRate;
                 serialPortInverted.Encoding = Encoding.UTF8;
@@ -97,19 +100,21 @@ class Program {
                 string initialPositionY = "InitialPositionY";
                 string AbsolutePosition = "AbsolutePosition";
 
-                if (configuracao.AtivarEnvioInicial) {
+                if (configuracao.ActiveFirstSend) {
                     // Enviar comandos iniciais para serialPortName
                     foreach (var comando in new[] { initialPositionZ, initialPositionX, initialPositionY, AbsolutePosition }) {
                         string selectedPosition = positionMapping.ContainsKey(comando)
                             ? positionMapping[comando]
                             : throw new Exception($"Comando não mapeado: {comando}");
 
+                        if (executarEsperarAteLiberado) {
                         serialPort.WriteLine(selectedPosition);
-                        await EsperarAteLiberado(serialPort, configuracao.RetornoStatusRobo, TimeSpan.FromSeconds(configuracao.DelaySecondsToSendSerial));
+                        await EsperarAteLiberado(serialPort, configuracao.ReturnStatusRobot, TimeSpan.FromSeconds(configuracao.DelaySecondsToSendSerial));
                         Console.WriteLine($"Comando executado com sucesso: {comando}");
-                    }
+                    }}
                 }
-                if (configuracao.AtivarEnvioInicial2) {
+
+                if (configuracao.ActiveFirstSend2) {
                     // Enviar comandos iniciais para serialPortNameInverted
                     foreach (var comando in new[] { initialPositionZ, initialPositionX, initialPositionY, AbsolutePosition }) {
                         string selectedPosition = positionInvertedMapping.ContainsKey(comando)
@@ -117,81 +122,114 @@ class Program {
                             : throw new Exception($"Comando não mapeado: {comando}");
 
                         serialPortInverted.WriteLine(selectedPosition);
-                        await EsperarAteLiberado(serialPortInverted, configuracao.RetornoStatusRobo, TimeSpan.FromSeconds(configuracao.DelaySecondsToSendSerial));
+                        await EsperarAteLiberado(serialPortInverted, configuracao.ReturnStatusRobot, TimeSpan.FromSeconds(configuracao.DelaySecondsToSendSerial));
                         Console.WriteLine($"Comando executado com sucesso: {comando}");
                     }
                 }
 
-                while (configuracao.AtivarLoopConsultaMovimento) {
-                    string urlConsultaMovimento = configuracao.URLconsultaMovimentoBase; //+ configuracao.Piece;
+                while (configuracao.ActiveLoopMovementQuery) {
+                    string urlConsultaMovimento = configuracao.UrlQueryMovement;
+                    string urlNewGame = configuracao.URLnewGame;
                     string comandoDaAPI = await LerComandoDaAPI(urlConsultaMovimento);
+                    string comandNewGame = await NewGame(urlNewGame);
+
+                    if(comandNewGame != null){
+                        var listNewGame = JsonConvert.DeserializeObject<List<RespostaConsultaMovimento>>(comandNewGame);
+                        string idNewGame = null;
+                        
+                        foreach (var returnNewGame in listNewGame) {
+                         idNewGame = returnNewGame.id;
+                        }
+
+                        foreach (var comando in new[] { initialPositionZ, initialPositionX, initialPositionY, AbsolutePosition }) {
+                        string selectedPosition = positionMapping.ContainsKey(comando)
+                            ? positionMapping[comando]
+                            : throw new Exception($"Comando não mapeado: {comando}");
+
+                        if (executarEsperarAteLiberado) {
+                        serialPort.WriteLine(selectedPosition);
+                        await EsperarAteLiberado(serialPort, configuracao.ReturnStatusRobot, TimeSpan.FromSeconds(configuracao.DelaySecondsToSendSerial));
+                        Console.WriteLine($"Comando executado com sucesso: {comando}");
+                        }
+                        
+                        if (executarEsperarAteLiberado){
+                        serialPortInverted.WriteLine(selectedPosition);
+                        await EsperarAteLiberado(serialPortInverted, configuracao.ReturnStatusRobot, TimeSpan.FromSeconds(configuracao.DelaySecondsToSendSerial));
+                        Console.WriteLine($"Comando executado com sucesso: {comando}");
+                        }
+                        
+                        }
+                        DeleteNewGame(idNewGame, configuracao.URLnewGameOk);
+                    }
 
                     if (comandoDaAPI != null) {
                         var listaResultado = JsonConvert.DeserializeObject<List<RespostaConsultaMovimento>>(comandoDaAPI);
-                        //var resultadoConsultaMovimento = JsonConvert.DeserializeObject<RespostaConsultaMovimento>(comandoDaAPI);
+                        
                         foreach (var resultadoConsultaMovimento in listaResultado) {
                             string player = resultadoConsultaMovimento.player;
                             string pieceToSend = resultadoConsultaMovimento.piece;
                             string idToSend = resultadoConsultaMovimento.id;
                             string positionToSend = resultadoConsultaMovimento.position;
                             string inverted = resultadoConsultaMovimento.inverted;
-                            string liberado = configuracao.RetornoStatusRobo;
-                            string descePeca = "DescePeca";
-                            string sobePeca = "SobePeca";
-                            string descePecaTabuleiro = "DescePecaTabuleiro";
+                            string liberado = configuracao.ReturnStatusRobot;
+                            string goDown = "GoDown";
+                            string upWithPiece = "UpWithPiece";
+                            string goDownWithPiece = "GoDownWithPiece";
                             string dropPiece = "DropPiece";
                             string pushPiece = "PushPiece";
-                            string sobeSemPecaTabuleiro = "SobeSemPecaTabuleiro";
+                            string upWithoutPiece = "UpWithoutPiece";
                             string finalPosition = "FinalPosition";
 
                             if (!string.IsNullOrEmpty(pieceToSend) && !string.IsNullOrEmpty(positionToSend) && inverted == "false") {
 
                                 //string[] positions = inverted == "true" ? positionInvertedMapping.Keys.ToArray() : positionMapping.Keys.ToArray();
 
-                                foreach (string command in new string[] {finalPosition, pieceToSend, descePeca, pushPiece, sobePeca, positionToSend, descePecaTabuleiro, dropPiece, sobeSemPecaTabuleiro, finalPosition }) {
+                                foreach (string command in new string[] {finalPosition, pieceToSend, goDown, pushPiece, upWithPiece, positionToSend, goDownWithPiece, dropPiece, upWithoutPiece, finalPosition }) {
                                     string selectedPosition;
 
-                                    if (player == "PLAYER_2") {
+                                    if (player == "PLAYER_1") {
+                                        selectedPosition = positionMapping.ContainsKey(command) ? positionMapping[command] : throw new Exception($"Comando não mapeado: {command}");
+                                        serialPort.WriteLine(selectedPosition);
+                                        if (executarEsperarAteLiberado) {
+                                        await EsperarAteLiberado(serialPort, liberado, TimeSpan.FromSeconds(configuracao.DelaySecondsToSendSerial));
+                                    }}
+                                    else {
                                         selectedPosition = positionInvertedMapping.ContainsKey(command) ? positionInvertedMapping[command] : throw new Exception($"Comando não mapeado: {command}");
                                         serialPortInverted.WriteLine(selectedPosition);
                                         await EsperarAteLiberado(serialPortInverted, liberado, TimeSpan.FromSeconds(configuracao.DelaySecondsToSendSerial));
                                     }
-                                    else {
-                                        selectedPosition = positionMapping.ContainsKey(command) ? positionMapping[command] : throw new Exception($"Comando não mapeado: {command}");
-                                        serialPort.WriteLine(selectedPosition);
-                                        await EsperarAteLiberado(serialPort, liberado, TimeSpan.FromSeconds(configuracao.DelaySecondsToSendSerial));
-                                    }
-
+                                    
                                     Console.WriteLine($"Comando executado com sucesso: {command}");
-                                    DeletarDadosNaAPI(idToSend, configuracao.URLremoveEventoBase);
                                 }
+                                DeletarDadosNaAPI(idToSend, configuracao.UrlRemoveEvent);
                             }
                             else if (!string.IsNullOrEmpty(pieceToSend) && !string.IsNullOrEmpty(positionToSend) && inverted == "true") {
                                 // Código para inverted == "true"
-                                foreach (string command in new string[] { finalPosition, positionToSend, descePeca, pushPiece, sobePeca, pieceToSend, descePecaTabuleiro, dropPiece, sobeSemPecaTabuleiro, finalPosition }) {
+                                foreach (string command in new string[] { finalPosition, positionToSend, goDown, pushPiece, upWithPiece, pieceToSend, goDownWithPiece, dropPiece, upWithoutPiece, finalPosition }) {
                                     string selectedPosition;
 
-                                    if (player == "PLAYER_2") {
+                                    if (player == "PLAYER_1") {
+                                        selectedPosition = positionMapping.ContainsKey(command) ? positionMapping[command] : throw new Exception($"Comando não mapeado: {command}");
+                                        serialPort.WriteLine(selectedPosition);
+                                        if (executarEsperarAteLiberado) {
+                                        await EsperarAteLiberado(serialPort, liberado, TimeSpan.FromSeconds(configuracao.DelaySecondsToSendSerial));
+                                    }}
+                                    else {
                                         selectedPosition = positionInvertedMapping.ContainsKey(command) ? positionInvertedMapping[command] : throw new Exception($"Comando não mapeado: {command}");
                                         serialPortInverted.WriteLine(selectedPosition);
                                         await EsperarAteLiberado(serialPortInverted, liberado, TimeSpan.FromSeconds(configuracao.DelaySecondsToSendSerial));
                                     }
-                                    else {
-                                        selectedPosition = positionMapping.ContainsKey(command) ? positionMapping[command] : throw new Exception($"Comando não mapeado: {command}");
-                                        serialPort.WriteLine(selectedPosition);
-                                        await EsperarAteLiberado(serialPort, liberado, TimeSpan.FromSeconds(configuracao.DelaySecondsToSendSerial));
-                                    }
 
                                     Console.WriteLine($"Comando executado com sucesso: {command}");
-                                    DeletarDadosNaAPI(idToSend, configuracao.URLremoveEventoBase);
                                 }
+                                DeletarDadosNaAPI(idToSend, configuracao.UrlRemoveEvent);
                             }
                         }
                     }
-                }
-
-                await Task.Delay(TimeSpan.FromSeconds(configuracao.DelaySecondsConsultaMovimento));
             }
+
+                await Task.Delay(TimeSpan.FromSeconds(configuracao.DelaySecondsMovementQuery));
+           // }
         }
     }
 
@@ -205,8 +243,27 @@ class Program {
             }
             else {
                 Console.WriteLine($"Erro ao obter comando da API. Código de status: {response.StatusCode}");
+                await Task.Delay(TimeSpan.FromSeconds(1));
                 return null;
             }
+
+        }
+    }
+
+    static async Task<string> NewGame(string urlNewGame) {
+        using (HttpClient httpClient = new HttpClient()) {
+            var response = await httpClient.GetAsync(urlNewGame);
+
+            if (response.IsSuccessStatusCode) {
+                string comandNewGame = await response.Content.ReadAsStringAsync();
+                return comandNewGame;
+            }
+            else {
+                Console.WriteLine($"Erro ao consultar novo jogo. Código de status: {response.StatusCode}");
+                await Task.Delay(TimeSpan.FromSeconds(1));
+                return null;
+            }
+
         }
     }
 
@@ -225,11 +282,26 @@ class Program {
         }
     }
 
+    static void DeleteNewGame(string idNewGame, string removeNewGame) {
+        string api = $"{removeNewGame}/{idNewGame}";
+
+        using (HttpClient httpClient = new HttpClient()) {
+            var response = httpClient.DeleteAsync(api).Result;
+
+            if (response.IsSuccessStatusCode) {
+                Console.WriteLine($"Dados excluídos com sucesso na API de New Game: {api}");
+            }
+            else {
+                Console.WriteLine($"Erro ao excluir dados na API: {api}. Código de status: {response.StatusCode}");
+            }
+        }
+    }
+
     static Configuracao CarregarConfiguracoes(string arquivoConfiguracao) {
         string json = File.ReadAllText(arquivoConfiguracao);
         return JsonConvert.DeserializeObject<Configuracao>(json);
     }
-}
+    }}
 
 
 class RespostaConsultaMovimento {
@@ -244,15 +316,17 @@ class Configuracao {
     public string? serialPortName { get; set; }
     public string? serialPortNameInverted { get; set; }
     public string? Piece { get; set; }
-    public int DelaySecondsConsultaMovimento { get; set; }
+    public int DelaySecondsMovementQuery { get; set; }
     public int DelaySecondsToSendSerial { get; set; }
-    public int DelaySecondsEnviaStatus { get; set; }
-    public bool AtivarLoopConsultaMovimento { get; set; }
-    public bool AtivarLoopEnviaStatus { get; set; }
-    public bool AtivarEnvioInicial { get; set; }
-    public bool AtivarEnvioInicial2 { get; set; }
-    public string? URLconsultaMovimentoBase { get; set; }
-    public string? URLremoveEventoBase { get; set; }
+    public int DelaySecondsSendStatus { get; set; }
+    public bool ActiveLoopMovementQuery { get; set; }
+    public bool ActiveLoopSendStatus { get; set; }
+    public bool ActiveFirstSend { get; set; }
+    public bool ActiveFirstSend2 { get; set; }
+    public string? UrlQueryMovement { get; set; }
+    public string? UrlRemoveEvent { get; set; }
+    public string? URLnewGame { get; set; }
+    public string? URLnewGameOk { get; set; }
     public int baudRate { get; set; }
     public string? DropPiece { get; set; }
     public string? PushPiece { get; set; }
@@ -261,24 +335,24 @@ class Configuracao {
     public string? InitialPositionY { get; set; }
     public string? AbsolutePosition { get; set; }
     public string? FinalPosition { get; set; }
-    public string? ValorT0 { get; set; }
-    public string? ValorT1 { get; set; }
-    public string? ValorT2 { get; set; }
-    public string? ValorT3 { get; set; }
-    public string? ValorT4 { get; set; }
-    public string? ValorT5 { get; set; }
-    public string? ValorT6 { get; set; }
-    public string? ValorT7 { get; set; }
-    public string? ValorT8 { get; set; }
-    public string? ValorP0 { get; set; }
-    public string? ValorP1 { get; set; }
-    public string? ValorP2 { get; set; }
-    public string? ValorP3 { get; set; }
-    public string? ValorP4 { get; set; }
-    public string? StatusRobo { get; set; }
-    public string? RetornoStatusRobo { get; set; }
-    public string? DescePeca { get; set; }
-    public string? SobePeca { get; set; }
-    public string? DescePecaTabuleiro { get; set; }
-    public string? SobeSemPecaTabuleiro { get; set; }
+    public string? ValueT0 { get; set; }
+    public string? ValueT1 { get; set; }
+    public string? ValueT2 { get; set; }
+    public string? ValueT3 { get; set; }
+    public string? ValueT4 { get; set; }
+    public string? ValueT5 { get; set; }
+    public string? ValueT6 { get; set; }
+    public string? ValueT7 { get; set; }
+    public string? ValueT8 { get; set; }
+    public string? ValueP0 { get; set; }
+    public string? ValueP1 { get; set; }
+    public string? ValueP2 { get; set; }
+    public string? ValueP3 { get; set; }
+    public string? ValueP4 { get; set; }
+    public string? StatusRobot { get; set; }
+    public string? ReturnStatusRobot { get; set; }
+    public string? GoDown { get; set; }
+    public string? UpWithPiece { get; set; }
+    public string? GoDownWithPiece { get; set; }
+    public string? UpWithoutPiece { get; set; }
 }
