@@ -106,11 +106,12 @@ class Program
                 string initialPositionX = "InitialPositionX";
                 string initialPositionY = "InitialPositionY";
                 string AbsolutePosition = "AbsolutePosition";
+                string finalPosition = "FinalPosition";
 
                 if (configuracao.ActiveFirstSend)
                 {
                     // Enviar comandos iniciais para serialPortName
-                    foreach (var comando in new[] { initialPositionZ, initialPositionX, initialPositionY, AbsolutePosition })
+                    foreach (var comando in new[] { initialPositionZ, initialPositionX, initialPositionY, AbsolutePosition, finalPosition})
                     {
                         string selectedPosition = positionMapping.ContainsKey(comando)
                             ? positionMapping[comando]
@@ -128,7 +129,7 @@ class Program
                 if (configuracao.ActiveFirstSend2)
                 {
                     // Enviar comandos iniciais para serialPortNameInverted
-                    foreach (var comando in new[] { initialPositionZ, initialPositionX, initialPositionY, AbsolutePosition })
+                    foreach (var comando in new[] { initialPositionZ, initialPositionX, initialPositionY, AbsolutePosition, finalPosition})
                     {
                         string selectedPosition = positionInvertedMapping.ContainsKey(comando)
                             ? positionInvertedMapping[comando]
@@ -152,7 +153,7 @@ class Program
                         Console.WriteLine(idNewGame);
                         Console.WriteLine(returnId);
 
-                        foreach (var comando in new[] { initialPositionZ, initialPositionX, initialPositionY, AbsolutePosition })
+                        foreach (var comando in new[] { initialPositionZ, initialPositionX, initialPositionY, AbsolutePosition, finalPosition})
                         {
                             string selectedPosition = positionMapping.ContainsKey(comando)
                                 ? positionMapping[comando]
@@ -201,14 +202,14 @@ class Program
                                     string dropPiece = "DropPiece";
                                     string pushPiece = "PushPiece";
                                     string upWithoutPiece = "UpWithoutPiece";
-                                    string finalPosition = "FinalPosition";
+                                    
 
                                     if (!string.IsNullOrEmpty(pieceToSend) && !string.IsNullOrEmpty(positionToSend) && inverted == "false")
                                     {
 
                                         //string[] positions = inverted == "true" ? positionInvertedMapping.Keys.ToArray() : positionMapping.Keys.ToArray();
 
-                                        foreach (string command in new string[] { finalPosition, pieceToSend, goDown, pushPiece, upWithPiece, positionToSend, goDownWithPiece, dropPiece, upWithoutPiece, finalPosition })
+                                        foreach (string command in new string[] { finalPosition, pieceToSend, pushPiece, goDown, upWithPiece, positionToSend, goDownWithPiece, dropPiece, upWithoutPiece, finalPosition })
                                         {
                                             string selectedPosition;
 
@@ -230,6 +231,8 @@ class Program
 
                                             Console.WriteLine($"Comando executado com sucesso: {command}");
                                         }
+                                        Console.WriteLine($"{configuracao.UrlRemoveEvent}/{idToSend}");
+                                        await Task.Delay(TimeSpan.FromSeconds(configuracao.DelaySecondsMovementQuery));
                                         DeletarDadosNaAPI(idToSend, configuracao.UrlRemoveEvent);
                                     }
                                     else if (!string.IsNullOrEmpty(pieceToSend) && !string.IsNullOrEmpty(positionToSend) && inverted == "true")
@@ -257,8 +260,10 @@ class Program
 
                                             Console.WriteLine($"Comando executado com sucesso: {command}");
                                         }
-                                        DeletarDadosNaAPI(idToSend, configuracao.UrlRemoveEvent);
+                                        Console.WriteLine($"{configuracao.UrlRemoveEvent}/{idToSend}");
                                         await Task.Delay(TimeSpan.FromSeconds(configuracao.DelaySecondsMovementQuery));
+                                        DeletarDadosNaAPI(idToSend, configuracao.UrlRemoveEvent);
+                                        
                                     }
                                 }
                                 string finalNewGame = await NewGame(urlNewGame);
